@@ -1,0 +1,46 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+import payment_system
+
+def predict_outcome(user_data):
+    # Load the data into a pandas DataFrame
+    data = pd.read_csv("football_data.csv")
+
+    # Split the data into training and testing sets
+    train_data, test_data, train_target, test_target = train_test_split(data.drop("outcome", axis=1), data["outcome"], test_size=0.2)
+
+    # Train multiple regression models on the training data
+    linear_model = LinearRegression()
+    linear_model.fit(train_data, train_target)
+
+    tree_model = DecisionTreeRegressor()
+    tree_model.fit(train_data, train_target)
+
+    forest_model = RandomForestRegressor()
+    forest_model.fit(train_data, train_target)
+
+    # Use the models to make predictions on the user's data
+    linear_prediction = linear_model.predict([user_data])
+    tree_prediction = tree_model.predict([user_data])
+    forest_prediction = forest_model.predict([user_data])
+
+    # Return the predictions from all the models
+    return linear_prediction, tree_prediction, forest_prediction
+
+def main():
+    # Check if the user has made a payment for the current week
+    if payment_system.check_payment(20):
+        user_data = [input("Enter your football data: ")]
+        predictions = predict_outcome(user_data)
+        print("Linear Regression Prediction:", predictions[0][0])
+        print("Decision Tree Prediction:", predictions[1][0])
+        print("Random Forest Prediction:", predictions[2][0])
+    else:
+        print("Please make a payment of N$20 to use the app this week.")
+
+if __name__ == "__main__":
+    main()
